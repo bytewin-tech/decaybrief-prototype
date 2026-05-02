@@ -2,3 +2,8 @@
 netlify-debug.log
 index.inline.js
 verify_html.py
+verify_remote.js
+site.json
+deploy.json
+.site_target
+.netlify/
