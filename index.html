@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DecayBrief — Recover lost traffic with refresh briefs</title>
+  <meta name="description" content="DecayBrief helps creators and SEO teams spot aging content, prioritize refresh opportunities, and generate crisp update briefs." />
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #07111f;
+      --panel: rgba(8, 18, 34, 0.84);
+      --panel-strong: #0d1a30;
+      --panel-soft: rgba(122, 162, 255, 0.08);
+      --border: rgba(171, 196, 255, 0.14);
+      --border-strong: rgba(171, 196, 255, 0.28);
+      --text: #eef4ff;
+      --muted: #93a4c6;
+      --accent: #6f8cff;
+      --accent-2: #50d0b8;
+      --accent-3: #ffc96b;
+      --danger: #ff7f9f;
+      --success: #54d68d;
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.42);
+      --radius-xl: 28px;
+      --radius-lg: 22px;
+      --radius-md: 16px;
+      --radius-sm: 12px;
+      --max: 1200px;
+      --font: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: var(--font);
+      background:
+        radial-gradient(circle at top left, rgba(111, 140, 255, 0.20), transparent 34%),
+        radial-gradient(circle at 85% 10%, rgba(80, 208, 184, 0.16), transparent 26%),
+        linear-gradient(180deg, #06101d 0%, #08111f 40%, #091425 100%);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.5;
+      text-wrap: pretty;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button, input { font: inherit; }
+    button {
+      cursor: pointer;
+      border: 0;
+      border-radius: 999px;
+      transition: transform 180ms ease, background 180ms ease, border-color 180ms ease, opacity 180ms ease;
+    }
+    button:hover { transform: translateY(-1px); }
+    button:focus-visible, .tab:focus-visible, .row-button:focus-visible, .nav-link:focus-visible {
+      outline: 2px solid rgba(111, 140, 255, 0.95);
+      outline-offset: 3px;
+    }
+
+    .shell {
+      width: min(calc(100% - 32px), var(--max));
+      margin: 0 auto;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      backdrop-filter: blur(18px);
+      background: rgba(6, 13, 24, 0.62);
+      border-bottom: 1px solid rgba(171, 196, 255, 0.09);
+    }
+
+    .topbar-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 18px 0;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-mark {
+      width: 40px;
+      height: 40px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, rgba(111, 140, 255, 0.95), rgba(80, 208, 184, 0.82));
+      color: #03101f;
+      box-shadow: 0 12px 30px rgba(111, 140, 255, 0.34);
+      font-size: 18px;
+    }
+
+    .top-links {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .nav-link, .ghost-btn, .primary-btn, .secondary-btn, .mini-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 44px;
+      padding: 0 18px;
+      border-radius: 999px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+
+    .nav-link, .ghost-btn {
+      color: var(--muted);
+      background: rgba(255,255,255,0.02);
+      border: 1px solid transparent;
+    }
+
+    .nav-link:hover, .ghost-btn:hover {
+      color: var(--text);
+      border-color: rgba(171, 196, 255, 0.18);
+      background: rgba(255,255,255,0.04);
+    }
+
+    .primary-btn {
+      background: linear-gradient(135deg, var(--accent), #89a0ff);
+      color: #07101c;
+      box-shadow: 0 14px 32px rgba(111, 140, 255, 0.35);
+    }
+
+    .secondary-btn {
+      background: rgba(80, 208, 184, 0.12);
+      color: #c8fff4;
+      border: 1px solid rgba(80, 208, 184, 0.22);
+    }
+
+    .mini-btn {
+      min-height: 36px;
+      padding: 0 14px;
+      font-size: 0.92rem;
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      border: 1px solid rgba(171, 196, 255, 0.15);
+    }
+
+    .hero {
+      padding: 72px 0 46px;
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 28px;
+      align-items: center;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(111, 140, 255, 0.22);
+      background: rgba(111, 140, 255, 0.08);
+      color: #dbe4ff;
+      font-size: 0.92rem;
+      font-weight: 600;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2.8rem, 6vw, 5.5rem);
+      line-height: 0.98;
+      letter-spacing: -0.06em;
+      max-width: 11ch;
+    }
+
+    .hero-copy {
+      margin: 22px 0 28px;
+      max-width: 60ch;
+      color: #c4d2ee;
+      font-size: 1.08rem;
+    }
+
+    .hero-cta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .proof-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      max-width: 640px;
+    }
+
+    .proof-card {
+      padding: 16px 18px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .proof-card strong {
+      display: block;
+      font-size: 1.2rem;
+      margin-bottom: 4px;
+    }
+
+    .hero-visual, .panel, .metric-card, .timeline-card, .brief-card, .opportunity-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+    }
+
+    .hero-visual {
+      padding: 22px;
+      border-radius: var(--radius-xl);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-visual::before {
+      content: "";
+      position: absolute;
+      inset: -2px;
+      background: linear-gradient(130deg, rgba(111, 140, 255, 0.16), transparent 35%, rgba(80, 208, 184, 0.12));
+      pointer-events: none;
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .chip {
+      padding: 8px 12px;
+      border-radius: 999px;
+      color: #d7e0fb;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(171, 196, 255, 0.12);
+      font-size: 0.88rem;
+    }
+
+    .visual-stack {
+      display: grid;
+      gap: 14px;
+    }
+
+    .snapshot {
+      padding: 18px;
+      border-radius: 20px;
+      background: linear-gradient(180deg, rgba(17, 30, 53, 0.94), rgba(10, 19, 34, 0.94));
+      border: 1px solid rgba(171, 196, 255, 0.11);
+    }
+
+    .snapshot-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .traffic-line {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      align-items: end;
+      gap: 8px;
+      min-height: 132px;
+      padding-top: 10px;
+    }
+
+    .bar {
+      border-radius: 999px 999px 10px 10px;
+      background: linear-gradient(180deg, rgba(111, 140, 255, 0.92), rgba(80, 208, 184, 0.40));
+      min-height: 32px;
+      position: relative;
+    }
+
+    .bar.faded { opacity: 0.48; }
+    .bar.warn { background: linear-gradient(180deg, rgba(255, 201, 107, 0.92), rgba(255, 127, 159, 0.55)); }
+
+    .floating-note {
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: rgba(12, 24, 44, 0.92);
+      border: 1px solid rgba(171, 196, 255, 0.14);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 16px;
+      margin: 28px 0 16px;
+    }
+
+    .section-head h2 {
+      margin: 0;
+      font-size: clamp(1.8rem, 3vw, 2.8rem);
+      letter-spacing: -0.05em;
+    }
+
+    .section-head p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      max-width: 58ch;
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      margin: 12px 0 56px;
+    }
+
+    .panel {
+      border-radius: var(--radius-lg);
+      padding: 22px;
+    }
+
+    .panel h3, .metric-card h3, .brief-card h3, .opportunity-card h3 {
+      margin: 0 0 10px;
+      font-size: 1.05rem;
+      letter-spacing: -0.03em;
+    }
+
+    .panel p, .metric-card p, .brief-card p, .opportunity-card p, .small-copy {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .app-shell {
+      margin: 18px 0 56px;
+      padding: 22px;
+      border-radius: 30px;
+      background: rgba(5, 12, 22, 0.72);
+      border: 1px solid rgba(171, 196, 255, 0.12);
+      box-shadow: 0 30px 90px rgba(0,0,0,0.34);
+    }
+
+    .app-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 18px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+
+    .app-title {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .tabs {
+      display: inline-flex;
+      gap: 8px;
+      padding: 6px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(171, 196, 255, 0.12);
+      flex-wrap: wrap;
+    }
+
+    .tab {
+      min-height: 42px;
+      padding: 0 16px;
+      border-radius: 999px;
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid transparent;
+      font-weight: 600;
+    }
+
+    .tab.active {
+      background: linear-gradient(135deg, rgba(111, 140, 255, 0.20), rgba(80, 208, 184, 0.14));
+      color: var(--text);
+      border-color: rgba(111, 140, 255, 0.18);
+    }
+
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    .dashboard-layout {
+      display: grid;
+      grid-template-columns: 1.3fr 0.7fr;
+      gap: 18px;
+    }
+
+    .stack { display: grid; gap: 18px; }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .metric-card {
+      padding: 18px;
+      border-radius: var(--radius-md);
+    }
+
+    .metric-value {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .metric-value strong {
+      font-size: 1.8rem;
+      letter-spacing: -0.05em;
+    }
+
+    .delta.up { color: var(--success); }
+    .delta.down { color: var(--danger); }
+    .delta.warn { color: var(--accent-3); }
+
+    .import-box {
+      display: grid;
+      gap: 16px;
+      padding: 24px;
+      border-radius: 24px;
+      background: linear-gradient(180deg, rgba(15, 28, 49, 0.92), rgba(10, 18, 33, 0.92));
+      border: 1px solid rgba(171, 196, 255, 0.13);
+    }
+
+    .drop-zone {
+      padding: 20px;
+      border: 1px dashed rgba(171, 196, 255, 0.22);
+      border-radius: 20px;
+      background: rgba(255,255,255,0.03);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .sources {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 36px;
+      padding: 0 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.04);
+      color: #dbe4ff;
+      border: 1px solid rgba(171, 196, 255, 0.12);
+      font-size: 0.92rem;
+    }
+
+    .table-card {
+      padding: 0;
+      overflow: hidden;
+      border-radius: 24px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.95rem;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 16px 18px;
+      border-bottom: 1px solid rgba(171, 196, 255, 0.09);
+      vertical-align: middle;
+    }
+
+    th {
+      color: #b9c7e6;
+      font-weight: 600;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      background: rgba(255,255,255,0.03);
+    }
+
+    tbody tr {
+      transition: background 160ms ease;
+    }
+
+    tbody tr:hover, tbody tr.active-row {
+      background: rgba(111, 140, 255, 0.08);
+    }
+
+    .title-cell {
+      display: grid;
+      gap: 4px;
+    }
+
+    .title-cell strong {
+      font-size: 0.98rem;
+      letter-spacing: -0.02em;
+    }
+
+    .score-pill, .status-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 30px;
+      padding: 0 10px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+
+    .score-high { background: rgba(255, 127, 159, 0.14); color: #ffc0d0; }
+    .score-med { background: rgba(255, 201, 107, 0.16); color: #ffe5b5; }
+    .score-low { background: rgba(80, 208, 184, 0.14); color: #c5fff2; }
+
+    .status-pill { background: rgba(111, 140, 255, 0.12); color: #d8e1ff; }
+
+    .row-button {
+      min-height: 38px;
+      padding: 0 14px;
+      background: rgba(111, 140, 255, 0.12);
+      color: #dde4ff;
+      border: 1px solid rgba(111, 140, 255, 0.18);
+    }
+
+    .opportunity-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .opportunity-card {
+      padding: 18px;
+      border-radius: 20px;
+    }
+
+    .opportunity-card ul, .actions-list, .brief-points, .checklist {
+      margin: 12px 0 0;
+      padding-left: 18px;
+      color: #d6e1fb;
+    }
+
+    .detail-layout {
+      display: grid;
+      grid-template-columns: 0.92fr 1.08fr;
+      gap: 18px;
+    }
+
+    .article-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      gap: 18px;
+      margin-bottom: 20px;
+    }
+
+    .article-title {
+      font-size: clamp(1.4rem, 2vw, 2rem);
+      line-height: 1.08;
+      letter-spacing: -0.04em;
+      margin-bottom: 8px;
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .score-ring {
+      width: 140px;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: conic-gradient(var(--danger) 0 var(--ring-fill), rgba(255,255,255,0.06) var(--ring-fill) 100%);
+      padding: 14px;
+      flex-shrink: 0;
+    }
+
+    .score-ring-inner {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: #091323;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      border: 1px solid rgba(171, 196, 255, 0.12);
+    }
+
+    .score-ring-inner strong {
+      display: block;
+      font-size: 2.2rem;
+      letter-spacing: -0.06em;
+    }
+
+    .trend-grid {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 8px;
+      align-items: end;
+      min-height: 168px;
+      margin-top: 20px;
+    }
+
+    .trend-col {
+      border-radius: 10px 10px 6px 6px;
+      background: linear-gradient(180deg, rgba(111, 140, 255, 0.85), rgba(111, 140, 255, 0.22));
+      min-height: 24px;
+    }
+
+    .trend-col.now {
+      background: linear-gradient(180deg, rgba(255, 127, 159, 0.95), rgba(255, 127, 159, 0.32));
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 18px;
+    }
+
+    .timeline-card, .brief-card {
+      padding: 20px;
+      border-radius: 22px;
+    }
+
+    .timeline-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(171, 196, 255, 0.08);
+    }
+
+    .timeline-row:last-child { border-bottom: 0; }
+
+    .action-card {
+      padding: 16px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(171, 196, 255, 0.1);
+      margin-bottom: 12px;
+    }
+
+    .action-card strong {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .brief-layout {
+      display: grid;
+      grid-template-columns: 0.78fr 1.22fr;
+      gap: 18px;
+    }
+
+    .export-card {
+      padding: 20px;
+      border-radius: 22px;
+      background: linear-gradient(180deg, rgba(12, 24, 43, 0.98), rgba(9, 18, 32, 0.95));
+      border: 1px solid rgba(171, 196, 255, 0.14);
+      box-shadow: var(--shadow);
+    }
+
+    .brief-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: start;
+      margin-bottom: 18px;
+    }
+
+    .brief-block {
+      padding: 18px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(171, 196, 255, 0.09);
+      margin-bottom: 12px;
+    }
+
+    .footer {
+      padding: 0 0 48px;
+      color: var(--muted);
+    }
+
+    .footer-card {
+      border-radius: 26px;
+      padding: 22px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(171, 196, 255, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+
+    @media (max-width: 1040px) {
+      .hero, .dashboard-layout, .detail-layout, .brief-layout { grid-template-columns: 1fr; }
+      .feature-grid, .metric-grid, .detail-grid, .proof-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .score-ring { width: 120px; }
+    }
+
+    @media (max-width: 720px) {
+      .shell { width: min(calc(100% - 20px), var(--max)); }
+      .topbar-inner, .section-head, .article-head, .brief-header, .footer-card { align-items: start; }
+      .feature-grid, .metric-grid, .detail-grid, .proof-row { grid-template-columns: 1fr; }
+      .hero { padding-top: 46px; }
+      .app-shell { padding: 14px; border-radius: 24px; }
+      .panel, .hero-visual, .metric-card, .timeline-card, .brief-card, .opportunity-card, .export-card { padding: 16px; }
+      th:nth-child(3), td:nth-child(3), th:nth-child(4), td:nth-child(4) { display: none; }
+      h1 { max-width: 10ch; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="shell topbar-inner">
+      <a href="#top" class="brand" aria-label="DecayBrief home">
+        <span class="brand-mark">↘</span>
+        <span>DecayBrief</span>
+      </a>
+      <nav class="top-links" aria-label="Primary">
+        <a class="nav-link" href="#why">Why now</a>
+        <a class="nav-link" href="#product">Product</a>
+        <a class="nav-link" href="#brief">Brief export</a>
+        <a class="primary-btn" href="#product">Open prototype</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top" class="shell">
+    <section class="hero">
+      <div>
+        <div class="eyebrow">Content refresh software for creators, SEO freelancers, and lean teams</div>
+        <h1>Recover lost traffic before old posts quietly fade out.</h1>
+        <p class="hero-copy">
+          DecayBrief pinpoints aging articles that are slipping in clicks, scores the recovery upside, and generates an editor-ready refresh brief in minutes — cheaper than publishing net-new content every week.
+        </p>
+        <div class="hero-cta">
+          <a class="primary-btn" href="#product">See the opportunity dashboard</a>
+          <a class="ghost-btn" href="#brief">Jump to generated brief</a>
+        </div>
+        <div class="proof-row">
+          <div class="proof-card">
+            <strong>58</strong>
+            <span>articles scanned in the sample workspace</span>
+          </div>
+          <div class="proof-card">
+            <strong>17</strong>
+            <span>refresh wins surfaced above 70 decay score</span>
+          </div>
+          <div class="proof-card">
+            <strong>3 min</strong>
+            <span>from CSV import to exportable refresh plan</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-visual" aria-label="Product preview">
+        <div class="chip-row">
+          <span class="chip">Traffic loss detection</span>
+          <span class="chip">SERP change hints</span>
+          <span class="chip">Brief export</span>
+        </div>
+        <div class="visual-stack">
+          <div class="snapshot">
+            <div class="snapshot-header">
+              <span>Opportunity drift — last 8 months</span>
+              <span class="status-pill">Decay watchlist</span>
+            </div>
+            <div class="traffic-line" aria-hidden="true">
+              <div class="bar" style="height: 124px;"></div>
+              <div class="bar" style="height: 118px;"></div>
+              <div class="bar" style="height: 110px;"></div>
+              <div class="bar" style="height: 97px;"></div>
+              <div class="bar faded" style="height: 84px;"></div>
+              <div class="bar faded" style="height: 69px;"></div>
+              <div class="bar warn" style="height: 50px;"></div>
+              <div class="bar warn" style="height: 39px;"></div>
+            </div>
+          </div>
+          <div class="floating-note">
+            <div>
+              <strong>"best newsletter platforms"</strong>
+              <div class="small-copy">42% click loss · high intent term · content freshness gap</div>
+            </div>
+            <button class="mini-btn" data-target-screen="detail">Review article</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="why">
+      <div class="section-head">
+        <div>
+          <h2>Built to make content maintenance feel like revenue recovery.</h2>
+          <p>DecayBrief focuses on what a small team actually needs: a clear queue of refresh opportunities, sharp reasons to act, and a brief a writer or freelancer can execute without another strategy meeting.</p>
+        </div>
+      </div>
+      <div class="feature-grid">
+        <article class="panel">
+          <h3>Spot decay that matters</h3>
+          <p>Blend traffic drop, ranking slide, update age, and business intent into one decay score so teams can stop guessing which post to touch next.</p>
+        </article>
+        <article class="panel">
+          <h3>See the why behind the drop</h3>
+          <p>Expose likely causes such as stale examples, missing subtopics, weak CTR copy, and SERP format changes instead of handing over a vague alert.</p>
+        </article>
+        <article class="panel">
+          <h3>Ship refresh briefs fast</h3>
+          <p>Turn a detected opportunity into an exportable action brief with target sections, rewrite priorities, keyword angles, and internal-link suggestions.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="product">
+      <div class="section-head">
+        <div>
+          <h2>Prototype walkthrough</h2>
+          <p>The prototype includes the core buyer story: import content data, prioritize what is decaying, inspect an article, then export a refresh brief.</p>
+        </div>
+      </div>
+
+      <div class="app-shell">
+        <div class="app-head">
+          <div class="app-title">
+            <strong>Acorn Media workspace</strong>
+            <span class="small-copy">58 articles · weekly decay scan · mock CSV import connected</span>
+          </div>
+          <div class="tabs" role="tablist" aria-label="Prototype screens">
+            <button class="tab active" data-screen="dashboard" role="tab" aria-selected="true">Opportunity dashboard</button>
+            <button class="tab" data-screen="detail" role="tab" aria-selected="false">Article detail</button>
+            <button class="tab" data-screen="brief" role="tab" aria-selected="false">Refresh brief</button>
+          </div>
+        </div>
+
+        <section class="screen active" id="screen-dashboard" aria-labelledby="dashboard-tab">
+          <div class="dashboard-layout">
+            <div class="stack">
+              <div class="import-box">
+                <div>
+                  <div class="eyebrow" style="margin-bottom: 10px;">CSV import + auto-triage</div>
+                  <h3 style="font-size: 1.55rem; margin: 0 0 8px; letter-spacing: -0.04em;">Drop in Search Console or analytics exports.</h3>
+                  <p class="small-copy">DecayBrief maps URLs, compares click and position changes, then opens a ranked queue of refresh opportunities.</p>
+                </div>
+                <div class="drop-zone">
+                  <div>
+                    <strong>search-console_q1-content.csv</strong>
+                    <div class="small-copy">Imported just now · 58 URLs matched · 17 opportunities above threshold</div>
+                  </div>
+                  <button class="secondary-btn" id="simulateImport">Run scan</button>
+                </div>
+                <div class="sources">
+                  <span class="pill">Google Search Console</span>
+                  <span class="pill">GA4 landing pages</span>
+                  <span class="pill">Ahrefs / Semrush export</span>
+                  <span class="pill">Manual CSV upload</span>
+                </div>
+              </div>
+
+              <div class="metric-grid">
+                <article class="metric-card">
+                  <h3>Refresh upside</h3>
+                  <div class="metric-value"><strong>31.4k</strong><span class="delta up">+9.8k recoverable clicks</span></div>
+                  <p>Estimated monthly click recovery if the top 10 briefs are executed.</p>
+                </article>
+                <article class="metric-card">
+                  <h3>High-decay posts</h3>
+                  <div class="metric-value"><strong>17</strong><span class="delta warn">7 urgent this month</span></div>
+                  <p>Articles with decayed rankings and meaningful business intent.</p>
+                </article>
+                <article class="metric-card">
+                  <h3>Avg. age since update</h3>
+                  <div class="metric-value"><strong>11.2 mo</strong><span class="delta down">staleness increasing</span></div>
+                  <p>Most opportunities have not been touched in nearly a year.</p>
+                </article>
+                <article class="metric-card">
+                  <h3>Time to brief</h3>
+                  <div class="metric-value"><strong>4 min</strong><span class="delta up">down from 45 min</span></div>
+                  <p>Prototype workflow from import to action-ready brief export.</p>
+                </article>
+              </div>
+
+              <article class="panel table-card" aria-label="Content opportunity table">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Article</th>
+                      <th>Decay score</th>
+                      <th>Click change</th>
+                      <th>Reason signal</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody id="opportunityRows"></tbody>
+                </table>
+              </article>
+            </div>
+
+            <aside class="stack">
+              <article class="opportunity-card">
+                <h3>What DecayBrief prioritizes</h3>
+                <ul>
+                  <li>High-intent pages with measurable traffic loss.</li>
+                  <li>Posts ranking just off page-one breakpoints.</li>
+                  <li>Content missing fresh examples, FAQs, or newer subtopics.</li>
+                </ul>
+              </article>
+              <article class="opportunity-card">
+                <h3>Suggested service angle</h3>
+                <p>SEO consultants can sell this as a monthly “content recovery sprint” instead of a one-off audit.</p>
+                <ul>
+                  <li>Scan client inventory weekly</li>
+                  <li>Deliver 5 refresh briefs per month</li>
+                  <li>Track recovered clicks as proof of value</li>
+                </ul>
+              </article>
+              <article class="opportunity-card">
+                <h3>Ready signals for this sample account</h3>
+                <ul>
+                  <li>4 posts lost featured snippet coverage</li>
+                  <li>6 posts need 2026 examples and screenshots</li>
+                  <li>3 comparison pieces have weaker intros than competing pages</li>
+                </ul>
+              </article>
+            </aside>
+          </div>
+        </section>
+
+        <section class="screen" id="screen-detail">
+          <div class="detail-layout">
+            <article class="panel">
+              <div class="article-head">
+                <div>
+                  <div class="eyebrow" style="margin-bottom: 10px;">Selected article</div>
+                  <div class="article-title" id="detailTitle"></div>
+                  <div class="meta-row" id="detailMeta"></div>
+                </div>
+                <div class="score-ring" id="scoreRing" style="--ring-fill: 78%;">
+                  <div class="score-ring-inner">
+                    <div>
+                      <strong id="detailScore">78</strong>
+                      <span class="small-copy">decay score</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="panel" style="padding: 18px; border-radius: 22px; background: rgba(255,255,255,0.03); border-color: rgba(171, 196, 255, 0.08); box-shadow: none;">
+                <strong id="detailSummary" style="display: block; font-size: 1.06rem; margin-bottom: 10px;"></strong>
+                <p class="small-copy" id="detailNarrative"></p>
+                <div class="trend-grid" id="trendGrid" aria-label="Traffic trend"></div>
+              </div>
+
+              <div class="detail-grid">
+                <article class="timeline-card">
+                  <h3>Opportunity signals</h3>
+                  <div id="signalRows"></div>
+                </article>
+                <article class="timeline-card">
+                  <h3>Recommended refresh actions</h3>
+                  <div id="actionCards"></div>
+                </article>
+              </div>
+            </article>
+
+            <aside class="stack">
+              <article class="brief-card">
+                <h3>Primary keyword cluster</h3>
+                <ul class="brief-points" id="keywordList"></ul>
+              </article>
+              <article class="brief-card">
+                <h3>Update checklist</h3>
+                <ul class="checklist" id="checklist"></ul>
+              </article>
+              <article class="brief-card">
+                <h3>SERP observations</h3>
+                <ul class="brief-points" id="serpNotes"></ul>
+              </article>
+            </aside>
+          </div>
+        </section>
+
+        <section class="screen" id="screen-brief">
+          <div class="brief-layout">
+            <aside class="stack">
+              <article class="export-card">
+                <div class="eyebrow" style="margin-bottom: 10px;">Generated refresh brief</div>
+                <h3 style="font-size: 1.5rem; margin: 0 0 10px; letter-spacing: -0.04em;">Ready for handoff to a writer or freelancer.</h3>
+                <p class="small-copy">This screen turns the opportunity diagnosis into a scoped assignment with outcome, updates, source notes, and export actions.</p>
+                <div class="stack" style="margin-top: 16px;">
+                  <button class="primary-btn">Export as PDF</button>
+                  <button class="ghost-btn">Copy to Notion</button>
+                  <button class="ghost-btn">Send to client portal</button>
+                </div>
+              </article>
+              <article class="brief-card" id="briefScorecard"></article>
+            </aside>
+
+            <article class="export-card" id="brief">
+              <div class="brief-header">
+                <div>
+                  <div class="article-title" id="briefTitle"></div>
+                  <p class="small-copy" id="briefSubtitle"></p>
+                </div>
+                <span class="score-pill score-high" id="briefPill">High recovery upside</span>
+              </div>
+              <div class="brief-block">
+                <h3>Objective</h3>
+                <p id="briefObjective"></p>
+              </div>
+              <div class="brief-block">
+                <h3>What to update</h3>
+                <ul class="brief-points" id="briefActions"></ul>
+              </div>
+              <div class="brief-block">
+                <h3>New sections to add</h3>
+                <ul class="brief-points" id="briefSections"></ul>
+              </div>
+              <div class="brief-block">
+                <h3>Internal links & conversion angle</h3>
+                <ul class="brief-points" id="briefLinks"></ul>
+              </div>
+              <div class="brief-block">
+                <h3>Definition of done</h3>
+                <ul class="brief-points" id="briefDone"></ul>
+              </div>
+            </article>
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <footer class="shell footer">
+    <div class="footer-card">
+      <div>
+        <strong>DecayBrief prototype</strong>
+        <div class="small-copy">Frontend-only concept with realistic sample data and screens for landing, dashboard, article analysis, and refresh-brief export.</div>
+      </div>
+      <div class="mono">Made for quick validation of a monetizable micro SaaS concept.</div>
+    </div>
+  </footer>
+
+  <script>
+    const opportunities = [
+      {
+        id: 'newsletter-platforms',
+        title: 'Best newsletter platforms for creators',
+        url: '/blog/best-newsletter-platforms',
+        score: 82,
+        clickLoss: '-42%',
+        reason: 'Stale comparisons + outdated screenshots',
+        opportunity: 'Potential to recover clicks by refreshing pricing tables, adding 2026 platform changes, and tightening the intro for comparison intent.',
+        narrative: 'Clicks fell from 6.8k to 3.9k monthly while average position slipped from 4.2 to 7.1. Competing pages now highlight automations, creator monetization, and migration steps earlier in the article.',
+        stage: 'High recovery upside',
+        age: 'Updated 13 months ago',
+        cluster: ['newsletter platforms', 'email tools for creators', 'ConvertKit alternatives', 'newsletter monetization'],
+        checklist: ['Replace all pricing references with current tiers', 'Add “best for…” summary boxes above the fold', 'Refresh product screenshots and setup steps', 'Link to lead magnet and email strategy service pages'],
+        serp: ['3 top-ranking pages added quick comparison tables in the intro', '2 competitors added creator-case-study snippets', 'SERP shows more list-first results than tool landing pages'],
+        signals: [
+          ['Traffic trend', 'Lost 2.9k monthly clicks over 6 months'],
+          ['Position shift', 'Moved from 4.2 average rank to 7.1'],
+          ['Intent gap', 'Missing creator monetization angle now common in top results'],
+          ['Freshness risk', 'Screenshots and pricing references are visibly old']
+        ],
+        actions: [
+          ['Rewrite intro + comparison summary', 'High impact', 'Lead with audience segmentation and top picks in the first viewport.'],
+          ['Add monetization workflow section', 'Medium effort', 'Explain how each platform supports sponsorships, paid newsletters, and audience ownership.'],
+          ['Refresh screenshots + pricing table', 'High trust', 'Update dated UI captures and clarify current plan differences.']
+        ],
+        trend: [100, 96, 93, 89, 84, 77, 64, 58, 49, 43, 38, 34],
+        brief: {
+          objective: 'Recover comparison-intent traffic for creators evaluating newsletter tools and push readers toward the email strategy offer.',
+          update: ['Rewrite the opening 250 words for sharper “best platform by use case” positioning.', 'Add a compact comparison table covering pricing, monetization, automations, and migration support.', 'Replace old screenshots and verify current product claims.', 'Add FAQs addressing deliverability, paid newsletters, and switching costs.'],
+          sections: ['“Best newsletter platform by creator stage”', '“Which platform is easiest to monetize?”', '“How to switch without losing subscribers”'],
+          links: ['Link to the email strategy retainer page in the intro CTA.', 'Link to the “lead magnet ideas” article from the automation section.', 'Add a download CTA for the newsletter stack checklist.'],
+          done: ['All screenshots and pricing updated', 'Comparison table added above the fold', 'FAQ schema-ready questions drafted', 'Primary CTA aligned to consulting offer']
+        }
+      },
+      {
+        id: 'seo-audit-template',
+        title: 'SEO audit template for small businesses',
+        url: '/blog/seo-audit-template-small-business',
+        score: 76,
+        clickLoss: '-31%',
+        reason: 'Search intent shifted toward actionable templates',
+        opportunity: 'Turn the post into a downloadable audit starter kit and add stronger examples to match template intent.',
+        narrative: 'The page still ranks, but top results now package ready-to-use checklists and spreadsheet templates. The current article reads more educational than practical.',
+        stage: 'High recovery upside',
+        age: 'Updated 10 months ago',
+        cluster: ['seo audit template', 'small business seo checklist', 'seo audit worksheet'],
+        checklist: ['Add downloadable worksheet CTA', 'Break process into step-based template format', 'Include screenshots of sample audit tabs'],
+        serp: ['Template-style headlines dominate the top 5 results', 'Featured snippets now show bulleted checklists', 'Searchers favor practical assets over long-form theory'],
+        signals: [['Traffic trend', 'Down 1.4k monthly clicks'], ['Position shift', 'Average position moved from 5.0 to 8.3'], ['CTR issue', 'Title no longer differentiates from competitors'], ['Asset gap', 'No downloadable template currently offered']],
+        actions: [['Add template asset', 'High leverage', 'Offer a worksheet and CTA within the first third of the page.'], ['Restructure into checklist format', 'Medium effort', 'Make the piece scannable for busy owners and consultants.'], ['Refresh title and meta description', 'CTR boost', 'Lead with “template” and “free worksheet” intent.']],
+        trend: [98, 95, 94, 88, 82, 79, 73, 66, 61, 58, 54, 51],
+        brief: {
+          objective: 'Recover template-intent traffic and generate leads with a downloadable SEO audit worksheet.',
+          update: ['Reframe the page around a ready-to-use audit template.', 'Create a 7-step process with one example per step.', 'Add inline CTA and downloadable worksheet references.', 'Refresh title tag and H1 to reflect “template” intent.'],
+          sections: ['Sample scoring framework', 'What to check in Search Console', 'How to present findings to clients'],
+          links: ['Link to the SEO retainer service page.', 'Link to the keyword research guide.', 'Cross-link to reporting dashboard article.'],
+          done: ['Worksheet CTA visible above the fold', '7-step template section completed', 'Metadata rewritten for higher CTR', 'One sample audit screenshot included']
+        }
+      },
+      {
+        id: 'notion-editorial-calendar',
+        title: 'Notion editorial calendar template',
+        url: '/blog/notion-editorial-calendar-template',
+        score: 64,
+        clickLoss: '-18%',
+        reason: 'Weak CTR and missing video walkthrough',
+        opportunity: 'The content can regain traction with a clearer template preview and a short setup walkthrough.',
+        narrative: 'Traffic loss is moderate, but the query still converts well. Top-ranking pages now showcase template previews and short explainer clips near the top.',
+        stage: 'Good medium-priority win',
+        age: 'Updated 8 months ago',
+        cluster: ['notion editorial calendar', 'content calendar template', 'notion planning template'],
+        checklist: ['Add template preview image', 'Insert 90-second Loom walkthrough', 'Clarify duplicate/template setup steps'],
+        serp: ['Video thumbnails appear in multiple top results', 'Pages with interactive previews win higher CTR', 'Searchers want visual proof quickly'],
+        signals: [['Traffic trend', 'Down 620 monthly clicks'], ['Position shift', 'Position slipped from 3.8 to 5.1'], ['CTR issue', 'Preview doesn’t show template clearly'], ['Content gap', 'No walkthrough media included']],
+        actions: [['Add visual preview block', 'CTR boost', 'Show the template layout before asking for signup.'], ['Embed short walkthrough', 'Trust builder', 'Make the setup feel quick and low-friction.'], ['Improve FAQ coverage', 'Support intent', 'Answer template duplication and view customization questions.']],
+        trend: [100, 99, 98, 96, 93, 90, 86, 82, 79, 76, 72, 68],
+        brief: {
+          objective: 'Improve CTR and template conversion by adding visual proof and faster onboarding cues.',
+          update: ['Add large template preview near the top.', 'Embed a quick walkthrough video or GIF.', 'Clarify the template duplication process.', 'Expand FAQs for common setup blockers.'],
+          sections: ['How creators customize views', 'Weekly planning workflow', 'Editorial calendar automation ideas'],
+          links: ['Link to content ops package.', 'Link to the Notion systems article.', 'Add newsletter signup CTA for templates.'],
+          done: ['Preview image added', 'Walkthrough included', 'FAQ expanded', 'Conversion CTA updated']
+        }
+      },
+      {
+        id: 'affiliate-disclosure',
+        title: 'Affiliate disclosure examples for bloggers',
+        url: '/blog/affiliate-disclosure-examples',
+        score: 58,
+        clickLoss: '-12%',
+        reason: 'Needs newer compliance examples',
+        opportunity: 'Refresh with 2026 disclosure examples and platform-specific guidance to defend rankings.',
+        narrative: 'The article is aging, but the drop is still manageable. A light refresh should be enough to protect the page.',
+        stage: 'Low-lift maintenance',
+        age: 'Updated 9 months ago',
+        cluster: ['affiliate disclosure examples', 'blog disclosure template', 'ftc affiliate disclosure'],
+        checklist: ['Add updated disclosure snippets', 'Mention email and social placements', 'Refresh legal references'],
+        serp: ['Recent-year examples are becoming more common', 'Searchers want platform-specific templates', 'Top pages are clearer about placement rules'],
+        signals: [['Traffic trend', 'Down 280 monthly clicks'], ['Position shift', 'Position moved from 2.9 to 4.4'], ['Freshness risk', 'Yearless examples feel dated'], ['Format gap', 'No creator-platform examples']],
+        actions: [['Update legal examples', 'Low effort', 'Include blog, email, and social snippets.'], ['Add platform notes', 'Practicality', 'Clarify placement rules for different channels.'], ['Refresh metadata', 'Protection', 'Use current-year language where appropriate.']],
+        trend: [100, 100, 98, 97, 95, 92, 89, 86, 83, 80, 77, 74],
+        brief: {
+          objective: 'Protect rankings by updating examples and compliance guidance.',
+          update: ['Refresh the legal references.', 'Add creator-channel examples.', 'Clarify placement by channel.', 'Tighten the intro for faster answers.'],
+          sections: ['Email disclosure examples', 'Instagram and short-form video notes', 'Common mistakes to avoid'],
+          links: ['Link to creator monetization guide.', 'Link to sponsorship rate card article.'],
+          done: ['Examples updated', 'Channel coverage expanded', 'Metadata refreshed', 'Intro tightened']
+        }
+      }
+    ];
+
+    const tabs = [...document.querySelectorAll('.tab')];
+    const screens = [...document.querySelectorAll('.screen')];
+    const rowRoot = document.getElementById('opportunityRows');
+    let activeId = opportunities[0].id;
+
+    function scoreClass(score) {
+      if (score >= 75) return 'score-high';
+      if (score >= 60) return 'score-med';
+      return 'score-low';
+    }
+
+    function renderRows() {
+      rowRoot.innerHTML = opportunities.map(item => `
+        <tr data-id="${item.id}" class="${item.id === activeId ? 'active-row' : ''}">
+          <td>
+            <div class="title-cell">
+              <strong>${item.title}</strong>
+              <span class="small-copy">${item.url}</span>
+            </div>
+          </td>
+          <td><span class="score-pill ${scoreClass(item.score)}">${item.score}</span></td>
+          <td>${item.clickLoss}</td>
+          <td>${item.reason}</td>
+          <td><button class="row-button" data-open="${item.id}">Inspect</button></td>
+        </tr>
+      `).join('');
+
+      document.querySelectorAll('[data-open]').forEach(button => {
+        button.addEventListener('click', () => {
+          activeId = button.dataset.open;
+          renderRows();
+          renderDetail();
+          switchScreen('detail');
+        });
+      });
+    }
+
+    function switchScreen(name) {
+      tabs.forEach(tab => {
+        const active = tab.dataset.screen === name;
+        tab.classList.toggle('active', active);
+        tab.setAttribute('aria-selected', active ? 'true' : 'false');
+      });
+      screens.forEach(screen => screen.classList.toggle('active', screen.id === `screen-${name}`));
+    }
+
+    function renderDetail() {
+      const item = opportunities.find(entry => entry.id === activeId) || opportunities[0];
+      document.getElementById('detailTitle').textContent = item.title;
+      document.getElementById('detailMeta').innerHTML = `
+        <span class="pill">${item.url}</span>
+        <span class="pill">${item.age}</span>
+        <span class="pill">${item.stage}</span>
+      `;
+      document.getElementById('detailScore').textContent = item.score;
+      document.getElementById('detailSummary').textContent = item.opportunity;
+      document.getElementById('detailNarrative').textContent = item.narrative;
+      const ring = document.getElementById('scoreRing');
+      ring.style.setProperty('--ring-fill', `${item.score}%`);
+
+      const trendRoot = document.getElementById('trendGrid');
+      trendRoot.innerHTML = item.trend.map((value, index) => `<div class="trend-col ${index >= item.trend.length - 3 ? 'now' : ''}" style="height:${value}%;"></div>`).join('');
+
+      document.getElementById('signalRows').innerHTML = item.signals.map(([label, text]) => `
+        <div class="timeline-row"><strong>${label}</strong><span class="small-copy">${text}</span></div>
+      `).join('');
+
+      document.getElementById('actionCards').innerHTML = item.actions.map(([title, badge, text]) => `
+        <div class="action-card"><strong><span>${title}</span><span class="status-pill">${badge}</span></strong><p class="small-copy">${text}</p></div>
+      `).join('');
+
+      document.getElementById('keywordList').innerHTML = item.cluster.map(point => `<li>${point}</li>`).join('');
+      document.getElementById('checklist').innerHTML = item.checklist.map(point => `<li>${point}</li>`).join('');
+      document.getElementById('serpNotes').innerHTML = item.serp.map(point => `<li>${point}</li>`).join('');
+
+      document.getElementById('briefTitle').textContent = `${item.title} — refresh brief`;
+      document.getElementById('briefSubtitle').textContent = `${item.stage} · ${item.clickLoss} click change · ${item.age}`;
+      document.getElementById('briefObjective').textContent = item.brief.objective;
+      document.getElementById('briefActions').innerHTML = item.brief.update.map(point => `<li>${point}</li>`).join('');
+      document.getElementById('briefSections').innerHTML = item.brief.sections.map(point => `<li>${point}</li>`).join('');
+      document.getElementById('briefLinks').innerHTML = item.brief.links.map(point => `<li>${point}</li>`).join('');
+      document.getElementById('briefDone').innerHTML = item.brief.done.map(point => `<li>${point}</li>`).join('');
+      document.getElementById('briefScorecard').innerHTML = `
+        <h3>Brief scorecard</h3>
+        <p>One high-value brief like this can justify a monthly content refresh subscription for consultants or in-house teams.</p>
+        <ul class="brief-points">
+          <li><strong>${item.score}</strong> decay score on a monetizable query</li>
+          <li><strong>${item.clickLoss}</strong> traffic change gives a clear before/after story</li>
+          <li><strong>4–6 edits</strong> keeps the assignment scoped and sellable</li>
+        </ul>
+      `;
+      document.getElementById('briefPill').textContent = item.stage;
+    }
+
+    tabs.forEach(tab => tab.addEventListener('click', () => switchScreen(tab.dataset.screen)));
+    document.querySelectorAll('[data-target-screen]').forEach(button => {
+      button.addEventListener('click', () => switchScreen(button.dataset.targetScreen));
+    });
+
+    document.getElementById('simulateImport').addEventListener('click', (event) => {
+      const button = event.currentTarget;
+      button.textContent = 'Scan complete';
+      button.disabled = true;
+      setTimeout(() => {
+        button.textContent = 'Run scan';
+        button.disabled = false;
+      }, 1800);
+    });
+
+    renderRows();
+    renderDetail();
+  </script>
+</body>
+</html>
