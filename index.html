@@ -384,6 +384,47 @@
       flex-wrap: wrap;
     }
 
+    .app-tools {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .tweaks {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      padding: 10px 12px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(171, 196, 255, 0.12);
+    }
+
+    .tweak {
+      display: grid;
+      gap: 4px;
+      min-width: 122px;
+    }
+
+    .tweak label {
+      font-size: 0.78rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .tweak select {
+      min-height: 40px;
+      padding: 0 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(171, 196, 255, 0.12);
+      background: rgba(8, 18, 34, 0.9);
+      color: var(--text);
+    }
+
     .tab {
       min-height: 42px;
       padding: 0 16px;
@@ -402,6 +443,23 @@
 
     .screen { display: none; }
     .screen.active { display: block; }
+
+    .app-shell[data-density="compact"] .panel,
+    .app-shell[data-density="compact"] .metric-card,
+    .app-shell[data-density="compact"] .timeline-card,
+    .app-shell[data-density="compact"] .brief-card,
+    .app-shell[data-density="compact"] .opportunity-card,
+    .app-shell[data-density="compact"] .export-card,
+    .app-shell[data-density="compact"] .import-box {
+      padding: 16px;
+    }
+
+    .app-shell[data-density="compact"] .stack { gap: 14px; }
+
+    .app-shell[data-focus="high"] tbody tr[data-priority="medium"],
+    .app-shell[data-focus="high"] tbody tr[data-priority="low"] {
+      opacity: 0.48;
+    }
 
     .dashboard-layout {
       display: grid;
@@ -548,6 +606,16 @@
       background: rgba(111, 140, 255, 0.12);
       color: #dde4ff;
       border: 1px solid rgba(111, 140, 255, 0.18);
+    }
+
+    .table-note {
+      margin-top: 12px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      color: var(--muted);
+      font-size: 0.9rem;
     }
 
     .opportunity-list {
@@ -726,6 +794,13 @@
 
     .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
 
+    .export-status {
+      min-height: 20px;
+      margin-top: 12px;
+      color: #c8fff4;
+      font-size: 0.92rem;
+    }
+
     @media (max-width: 1040px) {
       .hero, .dashboard-layout, .detail-layout, .brief-layout { grid-template-columns: 1fr; }
       .feature-grid, .metric-grid, .detail-grid, .proof-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -738,6 +813,9 @@
       .feature-grid, .metric-grid, .detail-grid, .proof-row { grid-template-columns: 1fr; }
       .hero { padding-top: 46px; }
       .app-shell { padding: 14px; border-radius: 24px; }
+      .app-tools { align-items: stretch; justify-content: stretch; }
+      .tabs, .tweaks { width: 100%; }
+      .tweak { min-width: 0; flex: 1 1 140px; }
       .panel, .hero-visual, .metric-card, .timeline-card, .brief-card, .opportunity-card, .export-card { padding: 16px; }
       th:nth-child(3), td:nth-child(3), th:nth-child(4), td:nth-child(4) { display: none; }
       h1 { max-width: 10ch; }
@@ -868,10 +946,28 @@
             <strong>Acorn Media workspace</strong>
             <span class="small-copy">58 articles · weekly decay scan · mock CSV import connected</span>
           </div>
-          <div class="tabs" role="tablist" aria-label="Prototype screens">
-            <button class="tab active" data-screen="dashboard" role="tab" aria-selected="true">Opportunity dashboard</button>
-            <button class="tab" data-screen="detail" role="tab" aria-selected="false">Article detail</button>
-            <button class="tab" data-screen="brief" role="tab" aria-selected="false">Refresh brief</button>
+          <div class="app-tools">
+            <div class="tabs" role="tablist" aria-label="Prototype screens">
+              <button class="tab active" data-screen="dashboard" role="tab" aria-selected="true">Opportunity dashboard</button>
+              <button class="tab" data-screen="detail" role="tab" aria-selected="false">Article detail</button>
+              <button class="tab" data-screen="brief" role="tab" aria-selected="false">Refresh brief</button>
+            </div>
+            <div class="tweaks" aria-label="Prototype tweaks">
+              <div class="tweak">
+                <label for="densitySelect">Density</label>
+                <select id="densitySelect">
+                  <option value="comfortable">Comfortable</option>
+                  <option value="compact">Compact</option>
+                </select>
+              </div>
+              <div class="tweak">
+                <label for="focusSelect">Queue focus</label>
+                <select id="focusSelect">
+                  <option value="all">All opportunities</option>
+                  <option value="high">High-decay only</option>
+                </select>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -935,6 +1031,10 @@
                   </thead>
                   <tbody id="opportunityRows"></tbody>
                 </table>
+                <div class="table-note">
+                  <span id="queueLabel">Showing all 4 matched opportunities</span>
+                  <span>Sorted by recoverable upside × freshness risk</span>
+                </div>
               </article>
             </div>
 
@@ -1030,10 +1130,11 @@
                 <h3 style="font-size: 1.5rem; margin: 0 0 10px; letter-spacing: -0.04em;">Ready for handoff to a writer or freelancer.</h3>
                 <p class="small-copy">This screen turns the opportunity diagnosis into a scoped assignment with outcome, updates, source notes, and export actions.</p>
                 <div class="stack" style="margin-top: 16px;">
-                  <button class="primary-btn">Export as PDF</button>
-                  <button class="ghost-btn">Copy to Notion</button>
-                  <button class="ghost-btn">Send to client portal</button>
+                  <button class="primary-btn" id="downloadBrief">Export as Markdown</button>
+                  <button class="ghost-btn" id="copyBrief">Copy brief</button>
+                  <button class="ghost-btn" id="simulateShare">Send to client portal</button>
                 </div>
+                <div class="export-status" id="exportStatus" aria-live="polite"></div>
               </article>
               <article class="brief-card" id="briefScorecard"></article>
             </aside>
@@ -1196,10 +1297,31 @@
       }
     ];
 
+    const STORAGE_KEY = 'decaybrief-prototype-state';
+    const savedState = (() => {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+      } catch {
+        return {};
+      }
+    })();
+
     const tabs = [...document.querySelectorAll('.tab')];
     const screens = [...document.querySelectorAll('.screen')];
     const rowRoot = document.getElementById('opportunityRows');
-    let activeId = opportunities[0].id;
+    const appShell = document.querySelector('.app-shell');
+    const densitySelect = document.getElementById('densitySelect');
+    const focusSelect = document.getElementById('focusSelect');
+    const queueLabel = document.getElementById('queueLabel');
+    const exportStatus = document.getElementById('exportStatus');
+    let activeId = opportunities.some(item => item.id === savedState.activeId) ? savedState.activeId : opportunities[0].id;
+    let activeScreen = ['dashboard', 'detail', 'brief'].includes(savedState.activeScreen) ? savedState.activeScreen : 'dashboard';
+    let density = savedState.density || 'comfortable';
+    let focus = savedState.focus || 'all';
+
+    function persistState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ activeId, activeScreen, density, focus }));
+    }
 
     function scoreClass(score) {
       if (score >= 75) return 'score-high';
@@ -1207,9 +1329,71 @@
       return 'score-low';
     }
 
+    function priorityLabel(score) {
+      if (score >= 75) return 'high';
+      if (score >= 60) return 'medium';
+      return 'low';
+    }
+
+    function visibleOpportunities() {
+      return focus === 'high' ? opportunities.filter(item => item.score >= 75) : opportunities;
+    }
+
+    function syncShellPrefs() {
+      appShell.dataset.density = density;
+      appShell.dataset.focus = focus;
+      densitySelect.value = density;
+      focusSelect.value = focus;
+    }
+
+    function ensureActiveVisible() {
+      const visibleIds = visibleOpportunities().map(item => item.id);
+      if (!visibleIds.includes(activeId)) {
+        activeId = visibleIds[0] || opportunities[0].id;
+      }
+    }
+
+    function setStatus(message) {
+      exportStatus.textContent = message;
+      if (!message) return;
+      window.clearTimeout(setStatus.timer);
+      setStatus.timer = window.setTimeout(() => {
+        exportStatus.textContent = '';
+      }, 2400);
+    }
+
+    function buildBriefMarkdown(item) {
+      return [
+        `# ${item.title} — Refresh Brief`,
+        '',
+        `- URL: ${item.url}`,
+        `- Decay score: ${item.score}`,
+        `- Click change: ${item.clickLoss}`,
+        `- Status: ${item.stage}`,
+        `- Last updated: ${item.age}`,
+        '',
+        '## Objective',
+        item.brief.objective,
+        '',
+        '## What to update',
+        ...item.brief.update.map(point => `- ${point}`),
+        '',
+        '## New sections to add',
+        ...item.brief.sections.map(point => `- ${point}`),
+        '',
+        '## Internal links & conversion angle',
+        ...item.brief.links.map(point => `- ${point}`),
+        '',
+        '## Definition of done',
+        ...item.brief.done.map(point => `- ${point}`),
+      ].join('\n');
+    }
+
     function renderRows() {
-      rowRoot.innerHTML = opportunities.map(item => `
-        <tr data-id="${item.id}" class="${item.id === activeId ? 'active-row' : ''}">
+      const visible = visibleOpportunities();
+      ensureActiveVisible();
+      rowRoot.innerHTML = visible.map(item => `
+        <tr data-id="${item.id}" data-priority="${priorityLabel(item.score)}" class="${item.id === activeId ? 'active-row' : ''}">
           <td>
             <div class="title-cell">
               <strong>${item.title}</strong>
@@ -1223,6 +1407,11 @@
         </tr>
       `).join('');
 
+      const countLabel = focus === 'high'
+        ? `Showing ${visible.length} high-decay opportunities`
+        : `Showing all ${visible.length} matched opportunities`;
+      queueLabel.textContent = countLabel;
+
       document.querySelectorAll('[data-open]').forEach(button => {
         button.addEventListener('click', () => {
           activeId = button.dataset.open;
@@ -1234,12 +1423,14 @@
     }
 
     function switchScreen(name) {
+      activeScreen = name;
       tabs.forEach(tab => {
         const active = tab.dataset.screen === name;
         tab.classList.toggle('active', active);
         tab.setAttribute('aria-selected', active ? 'true' : 'false');
       });
       screens.forEach(screen => screen.classList.toggle('active', screen.id === `screen-${name}`));
+      persistState();
     }
 
     function renderDetail() {
@@ -1288,6 +1479,7 @@
         </ul>
       `;
       document.getElementById('briefPill').textContent = item.stage;
+      persistState();
     }
 
     tabs.forEach(tab => tab.addEventListener('click', () => switchScreen(tab.dataset.screen)));
@@ -1295,18 +1487,58 @@
       button.addEventListener('click', () => switchScreen(button.dataset.targetScreen));
     });
 
+    densitySelect.addEventListener('change', (event) => {
+      density = event.target.value;
+      syncShellPrefs();
+      persistState();
+    });
+
+    focusSelect.addEventListener('change', (event) => {
+      focus = event.target.value;
+      syncShellPrefs();
+      renderRows();
+      renderDetail();
+      persistState();
+    });
+
     document.getElementById('simulateImport').addEventListener('click', (event) => {
       const button = event.currentTarget;
       button.textContent = 'Scan complete';
       button.disabled = true;
+      setStatus('Refresh queue updated from imported CSV.');
       setTimeout(() => {
         button.textContent = 'Run scan';
         button.disabled = false;
       }, 1800);
     });
 
+    document.getElementById('copyBrief').addEventListener('click', async () => {
+      const item = opportunities.find(entry => entry.id === activeId) || opportunities[0];
+      await navigator.clipboard.writeText(buildBriefMarkdown(item));
+      setStatus('Brief copied for Notion or email handoff.');
+    });
+
+    document.getElementById('downloadBrief').addEventListener('click', () => {
+      const item = opportunities.find(entry => entry.id === activeId) || opportunities[0];
+      const blob = new Blob([buildBriefMarkdown(item)], { type: 'text/markdown;charset=utf-8' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `${item.id}-refresh-brief.md`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(link.href);
+      setStatus('Markdown brief downloaded.');
+    });
+
+    document.getElementById('simulateShare').addEventListener('click', () => {
+      setStatus('Shared to client portal draft queue.');
+    });
+
+    syncShellPrefs();
     renderRows();
     renderDetail();
+    switchScreen(activeScreen);
   </script>
 </body>
 </html>

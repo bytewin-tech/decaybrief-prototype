@@ -9,6 +9,8 @@ Frontend prototype for **DecayBrief**, a micro SaaS concept that helps creators 
 - Article detail screen with decay score and recommended actions
 - Generated refresh brief / export screen
 - Realistic sample content and monetizable positioning
+- Tweaks panel for density and high-decay queue focus, persisted with localStorage
+- Markdown brief export and copy actions for a believable handoff workflow
 
 ## Stack
 
